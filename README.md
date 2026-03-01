@@ -5,7 +5,7 @@
 
 **Sanmitra** (Sanskrit: सन्मित्र — *True Friend*) is a free, AI-powered tool that analyses any YouTube video, podcast, or article and generates a **Digital Nutrition Label** — before you consume it.
 
-🔗 **Live App:** [yourusername.github.io/sanmitra](https://yourusername.github.io/sanmitra)  
+🔗 **Live App:** [https://anuragsharmasuccess-eng.github.io/sanmitra/]  
 👤 **Built by:** [Anurag Sharma](https://www.linkedin.com/in/anuragsharmapro/) — AI Product Leader · Author · Coach
 
 ---
