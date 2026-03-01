@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanmitra — Your Digital Nutrition Label</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0A0A0A;--paper:#F5F0E8;--cream:#EDE8DC;--gold:#C4952A;--gold-light:#E8C872;--sage:#4A6741;--rust:#B54A2A;--slate:#2C3E50;--mist:#8B9BB4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+
+/* HEADER */
+header{background:var(--ink);border-bottom:3px solid var(--ink);position:relative;z-index:10;}
+.header-inner{max-width:1100px;margin:0 auto;padding:22px 40px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand{display:flex;align-items:center;gap:14px;cursor:pointer;}
+.brand-mark{width:46px;height:46px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:21px;font-weight:900;color:var(--ink);flex-shrink:0;box-shadow:0 0 0 3px var(--gold-light);}
+.brand-text h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--paper);letter-spacing:-.5px;line-height:1;}
+.brand-text p{font-size:11px;color:var(--gold-light);letter-spacing:2px;text-transform:uppercase;margin-top:3px;font-weight:500;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.nav-btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--mist);background:none;border:1px solid transparent;padding:7px 13px;border-radius:2px;cursor:pointer;transition:all .2s;}
+.nav-btn:hover{color:var(--paper);border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.06);}
+.nav-btn.active{color:var(--gold-light);border-color:var(--gold);background:rgba(196,149,42,.12);}
+.api-key-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:2px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mist);cursor:pointer;transition:all .2s;}
+.api-key-btn:hover{color:var(--gold-light);border-color:var(--gold);}
+.key-dot{width:6px;height:6px;border-radius:50%;background:#555;transition:background .3s;}
+.api-key-btn.has-key .key-dot{background:#4A6741;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,10,10,.75);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border:3px solid var(--ink);border-radius:6px;box-shadow:12px 12px 0 var(--ink);width:460px;max-width:calc(100vw - 40px);overflow:hidden;animation:modalIn .25s cubic-bezier(.16,1,.3,1);}
+@keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(16px)}to{opacity:1;transform:none}}
+.modal-header{background:var(--ink);color:var(--paper);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
+.modal-header h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;opacity:.5;cursor:pointer;transition:opacity .15s;line-height:1;background:none;border:none;color:white;}
+.modal-close:hover{opacity:1;}
+.modal-body{padding:24px;}
+.modal-body p{font-size:13px;line-height:1.7;color:#555;margin-bottom:18px;font-weight:300;}
+.modal-body a{color:var(--gold);text-decoration:none;font-weight:500;}
+.modal-body a:hover{text-decoration:underline;}
+.key-input-wrap{position:relative;margin-bottom:14px;}
+.key-input{width:100%;padding:12px 44px 12px 14px;border:2px solid var(--ink);border-radius:3px;font-family:'DM Mono',monospace;font-size:12px;background:var(--paper);color:var(--ink);outline:none;transition:border-color .2s;}
+.key-input:focus{border-color:var(--gold);background:white;}
+.key-input.error{border-color:var(--rust);}
+.key-toggle-vis{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;opacity:.4;transition:opacity .15s;}
+.key-toggle-vis:hover{opacity:.8;}
+.modal-save-btn{width:100%;padding:12px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:3px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.modal-save-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.modal-note{margin-top:14px;padding:10px 14px;background:var(--cream);border-radius:3px;font-size:11.5px;color:#666;line-height:1.6;}
+.modal-note strong{color:var(--ink);}
+.modal-clear-btn{margin-top:10px;width:100%;padding:8px;background:transparent;border:1px solid #ddd;border-radius:3px;font-size:12px;color:#999;cursor:pointer;transition:all .15s;}
+.modal-clear-btn:hover{border-color:var(--rust);color:var(--rust);}
+
+/* PAGE SWITCHING */
+#page-home{display:block;}
+#page-about{display:none;}
+
+/* HERO */
+.hero{max-width:1100px;margin:0 auto;padding:60px 40px 40px;position:relative;z-index:1;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--ink);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:2px;margin-bottom:24px;}
+.hero h2{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,56px);font-weight:900;line-height:1.1;color:var(--ink);max-width:700px;margin-bottom:18px;}
+.hero h2 em{font-style:italic;color:var(--gold);}
+.hero p{font-size:16px;color:#444;line-height:1.7;max-width:560px;font-weight:300;}
+
+/* SCAN SECTION */
+.scan-section{max-width:1100px;margin:0 auto;padding:28px 40px 50px;position:relative;z-index:1;}
+.setup-panel{background:white;border:2px solid var(--ink);border-radius:4px;padding:24px 28px;margin-bottom:22px;box-shadow:5px 5px 0 var(--ink);}
+.setup-panel h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:6px;}
+.setup-panel p{font-size:13px;color:#666;margin-bottom:16px;line-height:1.6;font-weight:300;}
+.value-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px;}
+.value-toggle{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--paper);border:2px solid #ddd;border-radius:3px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;user-select:none;}
+.value-toggle.active{border-color:var(--gold);background:#FEF3C7;}
+.vcheck{width:17px;height:17px;border:2px solid #ccc;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;transition:all .15s;}
+.value-toggle.active .vcheck{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.scan-box{background:white;border:2px solid var(--ink);border-radius:4px;padding:28px 30px;box-shadow:6px 6px 0 var(--ink);}
+.scan-box-label{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--mist);margin-bottom:14px;}
+.input-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.url-input{flex:1;min-width:260px;padding:13px 16px;border:2px solid var(--ink);border-radius:3px;font-family:'DM Mono',monospace;font-size:13px;background:var(--paper);color:var(--ink);outline:none;transition:all .2s;}
+.url-input:focus{border-color:var(--gold);background:white;box-shadow:0 0 0 3px rgba(196,149,42,.12);}
+.url-input::placeholder{color:#aaa;}
+.scan-btn{padding:13px 26px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:3px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.scan-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--ink);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.scan-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.demo-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.chip-label{font-size:11px;color:var(--mist);letter-spacing:1px;text-transform:uppercase;font-weight:500;}
+.demo-chip{padding:5px 12px;background:var(--cream);border:1px solid #ddd;border-radius:100px;font-size:12px;color:var(--slate);cursor:pointer;font-weight:500;transition:all .15s;}
+.demo-chip:hover{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.no-key-notice{margin-top:16px;padding:12px 16px;background:#FEF3C7;border:2px solid var(--gold);border-radius:3px;font-size:13px;color:#92400E;display:flex;align-items:center;gap:12px;}
+.no-key-notice.hidden{display:none;}
+.no-key-btn{padding:5px 14px;background:var(--gold);border:none;border-radius:2px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink);flex-shrink:0;}
+
+/* HISTORY */
+.history-strip{max-width:1100px;margin:0 auto;padding:0 40px 32px;position:relative;z-index:1;}
+.history-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mist);margin-bottom:10px;}
+.history-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.h-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px 6px 8px;background:white;border:1.5px solid #ddd;border-radius:100px;font-size:12px;color:var(--slate);cursor:pointer;font-weight:500;max-width:240px;transition:all .15s;}
+.h-chip:hover{border-color:var(--gold);background:#FFFBF0;color:var(--ink);}
+.h-score{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;padding:2px 7px;border-radius:100px;flex-shrink:0;}
+.h-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.h-del{font-size:14px;opacity:.3;flex-shrink:0;margin-left:2px;transition:opacity .15s;}
+.h-chip:hover .h-del{opacity:.6;}
+
+/* LOADING */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(10,10,10,.88);z-index:500;flex-direction:column;align-items:center;justify-content:center;}
+.loading-overlay.active{display:flex;}
+.loading-ring{width:60px;height:60px;border:4px solid rgba(255,255,255,.1);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite;margin-bottom:28px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-steps{display:flex;flex-direction:column;gap:10px;}
+.loading-step{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;color:rgba(255,255,255,.25);transition:color .4s;}
+.loading-step .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .4s;flex-shrink:0;}
+.loading-step.active{color:var(--gold-light);}
+.loading-step.active .dot{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+.loading-step.done{color:rgba(255,255,255,.45);}
+.loading-step.done .dot{background:var(--sage);}
+.loading-cancel{margin-top:30px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);background:none;border:1px solid rgba(255,255,255,.15);padding:7px 18px;border-radius:2px;cursor:pointer;transition:all .2s;}
+.loading-cancel:hover{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.4);}
+
+/* RESULTS */
+#results{display:none;}
+.results-wrap{max-width:1100px;margin:0 auto;padding:0 40px 80px;position:relative;z-index:1;}
+.results-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:20px;}
+.content-meta{flex:1;}
+.source-badge{display:inline-flex;align-items:center;gap:6px;background:var(--slate);color:white;font-size:11px;padding:4px 10px;border-radius:2px;margin-bottom:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;}
+.content-meta h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1.3;color:var(--ink);margin-bottom:6px;max-width:600px;}
+.creator-line{font-size:13px;color:#666;}
+.master-score-ring{width:120px;height:120px;position:relative;flex-shrink:0;}
+.master-score-ring svg{transform:rotate(-90deg);}
+.master-score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;line-height:1;}
+.score-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mist);font-weight:600;margin-top:3px;text-align:center;}
+
+/* NUTRITION CARD */
+.nutrition-card{border:3px solid var(--ink);border-radius:4px;overflow:hidden;margin-bottom:22px;box-shadow:8px 8px 0 var(--ink);}
+.nutrition-card-header{background:var(--ink);color:var(--paper);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+.nutrition-card-header h4{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;}
+.serving{font-family:'DM Mono',monospace;font-size:11px;color:var(--mist);letter-spacing:1px;}
+.nutrition-divider{height:8px;background:var(--ink);}
+.nutrition-rows{background:white;padding:0 24px;}
+.nutrition-row{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #eee;gap:14px;}
+.nutrition-row:last-child{border-bottom:none;}
+.n-label{font-size:14px;font-weight:600;color:var(--ink);min-width:210px;flex-shrink:0;}
+.n-sub{font-size:11.5px;font-weight:400;color:#888;display:block;margin-top:1px;}
+.bar-wrap{flex:1;height:8px;background:#eee;border-radius:4px;overflow:hidden;}
+.bar{height:100%;border-radius:4px;transition:width 1.4s cubic-bezier(.16,1,.3,1);width:0;}
+.score-tag{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;min-width:56px;text-align:right;}
+.flag{font-size:11px;padding:3px 8px;border-radius:2px;font-weight:600;letter-spacing:.5px;white-space:nowrap;}
+.flag-great{background:#D1FAE5;color:#065F46;}
+.flag-good{background:#DBEAFE;color:#1E40AF;}
+.flag-avg{background:#FEF3C7;color:#92400E;}
+.flag-poor{background:#FEE2E2;color:#991B1B;}
+.flag-alert{background:#1A1A1A;color:#F87171;}
+
+/* VALUES */
+.values-section{background:white;border:2px solid var(--ink);border-radius:4px;padding:22px;margin-bottom:22px;box-shadow:5px 5px 0 var(--ink);}
+.values-section h5{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:14px;}
+.value-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.value-chip{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;border:2px solid;}
+.value-aligned{background:#D1FAE5;border-color:#065F46;color:#065F46;}
+.value-neutral{background:#F1F5F9;border-color:#94A3B8;color:#475569;}
+.value-conflict{background:#FEE2E2;border-color:#991B1B;color:#991B1B;}
+
+/* COMPLIANCE */
+.compliance-section{background:white;border:2px solid var(--ink);border-radius:4px;overflow:hidden;margin-bottom:22px;box-shadow:5px 5px 0 var(--ink);}
+.compliance-header{background:var(--cream);padding:13px 24px;border-bottom:2px solid var(--ink);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--slate);}
+.compliance-item{display:flex;align-items:flex-start;padding:13px 24px;gap:13px;border-bottom:1px solid #eee;}
+.compliance-item:last-child{border-bottom:none;}
+.compliance-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.dot-pass{background:var(--sage);}
+.dot-warn{background:var(--gold);}
+.dot-fail{background:var(--rust);}
+.compliance-text .c-name{font-size:13px;font-weight:600;color:var(--ink);}
+.compliance-text .c-desc{font-size:12px;color:#888;margin-top:2px;line-height:1.5;}
+.compliance-status{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;padding:3px 10px;border-radius:2px;flex-shrink:0;font-weight:500;}
+.status-pass{background:#D1FAE5;color:#065F46;}
+.status-warn{background:#FEF3C7;color:#92400E;}
+.status-fail{background:#FEE2E2;color:#991B1B;}
+
+/* COMMUNITY */
+.community-section{background:var(--ink);border-radius:4px;padding:24px;margin-bottom:22px;color:white;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;}
+.community-stat{text-align:center;}
+.c-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--gold-light);line-height:1;display:block;}
+.c-lbl{font-size:11px;color:var(--mist);text-transform:uppercase;letter-spacing:1.5px;margin-top:6px;display:block;}
+
+/* VERDICT */
+.verdict-box{border:3px solid;border-radius:4px;padding:22px 26px;margin-bottom:22px;display:flex;align-items:flex-start;gap:18px;}
+.verdict-icon{font-size:34px;flex-shrink:0;}
+.verdict-content h4{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+.verdict-content p{font-size:14px;line-height:1.7;color:#555;}
+
+/* TRANSCRIPT */
+.transcript-section{background:white;border:2px solid var(--ink);border-radius:4px;overflow:hidden;margin-bottom:22px;box-shadow:5px 5px 0 var(--ink);}
+.transcript-header{background:var(--slate);color:white;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.t-header-left{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;}
+.t-toggle-btn{font-family:'DM Mono',monospace;font-size:11px;padding:4px 12px;border-radius:2px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;cursor:pointer;letter-spacing:1px;transition:all .15s;}
+.t-toggle-btn:hover{background:rgba(255,255,255,.2);}
+.transcript-body{display:none;padding:22px;max-height:420px;overflow-y:auto;}
+.transcript-body.open{display:block;}
+.t-excerpt{font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;color:#555;white-space:pre-wrap;word-break:break-word;}
+.t-meta{display:flex;gap:16px;padding:11px 24px;background:var(--cream);font-family:'DM Mono',monospace;font-size:11px;color:var(--mist);flex-wrap:wrap;}
+.t-meta span strong{color:var(--slate);}
+.key-claims{margin-top:18px;padding-top:18px;border-top:2px solid #eee;}
+.key-claims h6{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--ink);}
+.claim-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:13px;line-height:1.5;}
+.claim-item:last-child{border-bottom:none;}
+.claim-verdict{font-size:10px;padding:3px 8px;border-radius:2px;font-weight:600;white-space:nowrap;font-family:'DM Mono',monospace;flex-shrink:0;margin-top:2px;}
+.claim-true{background:#D1FAE5;color:#065F46;}
+.claim-partial{background:#FEF3C7;color:#92400E;}
+.claim-false{background:#FEE2E2;color:#991B1B;}
+.claim-unverified{background:#F1F5F9;color:#475569;}
+
+/* SHARE */
+.share-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.share-btn{padding:10px 18px;border:2px solid var(--ink);border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:white;color:var(--ink);display:flex;align-items:center;gap:7px;}
+.share-btn:hover{background:var(--ink);color:white;transform:translateY(-1px);}
+.share-btn.primary{background:var(--gold);border-color:var(--gold);}
+.share-btn.primary:hover{background:var(--ink);border-color:var(--ink);color:white;}
+.share-btn.tw{background:#000;border-color:#000;color:white;}
+.share-btn.tw:hover{background:#333;}
+.share-btn.li{background:#0A66C2;border-color:#0A66C2;color:white;}
+.share-btn.li:hover{background:#004182;}
+
+/* ERROR */
+.error-box{background:#FEE2E2;border:2px solid #991B1B;border-radius:4px;padding:16px 20px;margin-bottom:22px;display:flex;align-items:flex-start;gap:12px;color:#991B1B;font-size:13.5px;line-height:1.6;}
+
+/* AI BADGE */
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:var(--sage);color:white;font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:2px;letter-spacing:1px;text-transform:uppercase;margin-left:10px;vertical-align:middle;}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.anim{animation:fadeUp .5s ease forwards;opacity:0;}
+
+/* FEEDBACK FAB */
+.feedback-widget{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+.feedback-panel{display:none;width:308px;background:white;border:3px solid var(--ink);border-radius:6px;box-shadow:8px 8px 0 var(--ink);overflow:hidden;animation:modalIn .2s cubic-bezier(.16,1,.3,1);}
+.feedback-panel.open{display:block;}
+.fp-header{background:var(--ink);color:var(--paper);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;}
+.fp-header h5{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;}
+.fp-close{cursor:pointer;font-size:18px;opacity:.5;line-height:1;transition:opacity .15s;background:none;border:none;color:white;}
+.fp-close:hover{opacity:1;}
+.fp-body{padding:16px 16px 6px;}
+.fp-prompt{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mist);margin-bottom:12px;}
+.star-row{display:flex;gap:6px;margin-bottom:14px;}
+.star{font-size:26px;cursor:pointer;transition:transform .12s,filter .12s;filter:grayscale(1) opacity(.28);line-height:1;user-select:none;}
+.star:hover,.star.active{filter:grayscale(0) opacity(1);transform:scale(1.22);}
+.star.locked{filter:grayscale(0) opacity(1);transform:scale(1.08);cursor:default;}
+.fp-textarea{width:100%;border:2px solid #eee;border-radius:3px;padding:9px 11px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);resize:none;outline:none;transition:border-color .2s;background:var(--paper);line-height:1.5;margin-bottom:10px;}
+.fp-textarea:focus{border-color:var(--gold);background:white;}
+.fp-textarea::placeholder{color:#bbb;}
+.fp-submit{width:100%;padding:10px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:3px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.fp-submit:hover{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.fp-divider{height:1px;background:#eee;}
+.li-strip{display:flex;align-items:center;gap:10px;padding:13px 16px 14px;}
+.li-logo{width:30px;height:30px;background:#0A66C2;border-radius:5px;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:14px;font-family:serif;flex-shrink:0;}
+.li-strip-text{flex:1;font-size:12px;color:#555;line-height:1.4;font-weight:300;}
+.li-strip-text strong{display:block;color:var(--ink);font-weight:600;font-size:12.5px;margin-bottom:1px;}
+.li-follow{padding:6px 13px;background:#0A66C2;color:white;border:none;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;transition:background .2s,transform .15s;flex-shrink:0;}
+.li-follow:hover{background:#004182;transform:translateY(-1px);}
+.feedback-fab{width:50px;height:50px;background:var(--gold);border:3px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;box-shadow:4px 4px 0 var(--ink);transition:all .2s;}
+.feedback-fab:hover{transform:translateY(-2px);box-shadow:4px 6px 0 var(--ink);}
+.fp-thanks{display:none;padding:20px 16px;text-align:center;}
+.fp-thanks .ti{font-size:32px;margin-bottom:8px;display:block;}
+.fp-thanks h6{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:5px;}
+.fp-thanks p{font-size:13px;color:#777;line-height:1.5;}
+
+/* ABOUT */
+.about-hero{max-width:1100px;margin:0 auto;padding:60px 40px 0;position:relative;z-index:1;}
+.about-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--ink);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:2px;margin-bottom:26px;}
+.about-hero-grid{padding-bottom:60px;border-bottom:2px solid var(--cream);}
+.about-hero-left h2{font-family:'Playfair Display',serif;font-size:clamp(34px,5vw,56px);font-weight:900;line-height:1.08;letter-spacing:-1px;margin-bottom:20px;}
+.about-hero-left h2 em{font-style:italic;color:var(--gold);}
+.about-hero-left .lead{font-size:17px;line-height:1.75;color:#444;font-weight:300;max-width:580px;margin-bottom:28px;}
+.role-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
+.role-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:white;border:2px solid var(--ink);border-radius:100px;font-size:12px;font-weight:600;color:var(--ink);box-shadow:2px 2px 0 var(--ink);}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;}
+.cta-btn{padding:12px 24px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:3px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s;}
+.cta-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--ink);transform:translateY(-1px);}
+.cta-btn.outline{background:transparent;color:var(--ink);}
+.cta-btn.outline:hover{background:var(--ink);color:var(--paper);}
+.about-content{max-width:1100px;margin:0 auto;padding:60px 40px;position:relative;z-index:1;}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--mist);margin-bottom:18px;display:flex;align-items:center;gap:12px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--cream);max-width:80px;}
+.origin-block{background:var(--ink);border-radius:4px;padding:44px;margin-bottom:52px;position:relative;overflow:hidden;}
+.origin-block::before{content:'"';position:absolute;top:-20px;left:28px;font-family:'Playfair Display',serif;font-size:200px;font-weight:900;color:rgba(196,149,42,.07);line-height:1;pointer-events:none;}
+.origin-block blockquote{font-family:'Playfair Display',serif;font-size:clamp(19px,3vw,26px);font-weight:400;font-style:italic;color:var(--paper);line-height:1.55;max-width:680px;margin-bottom:22px;position:relative;z-index:1;}
+.origin-block blockquote em{color:var(--gold-light);font-style:normal;}
+.origin-attr{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
+.attr-line{width:40px;height:2px;background:var(--gold);}
+.origin-attr span{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mist);}
+.san-origin{background:var(--cream);border:2px solid var(--ink);border-radius:4px;padding:38px;margin-bottom:52px;box-shadow:6px 6px 0 var(--ink);display:grid;grid-template-columns:1fr 260px;gap:38px;align-items:center;}
+.san-origin h3{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;margin-bottom:14px;line-height:1.2;}
+.san-origin h3 em{color:var(--gold);font-style:italic;}
+.san-origin p{font-size:14px;line-height:1.75;color:#555;font-weight:300;margin-bottom:12px;}
+.san-origin p:last-child{margin-bottom:0;}
+.etym-box{background:var(--ink);border-radius:4px;padding:26px;text-align:center;}
+.etym-word{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;font-style:italic;color:var(--gold-light);display:block;margin-bottom:8px;}
+.etym-dev{font-size:26px;color:rgba(232,200,114,.45);display:block;margin-bottom:12px;}
+.etym-meaning{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mist);line-height:1.8;}
+.etym-meaning strong{color:var(--gold-light);display:block;font-size:12px;letter-spacing:0;font-family:'DM Sans',sans-serif;font-weight:600;margin-top:6px;}
+.gold-rule{height:4px;background:var(--gold);border-radius:2px;max-width:60px;margin-bottom:26px;}
+.phil-section{margin-bottom:52px;}
+.phil-list{border:2px solid var(--ink);border-radius:4px;overflow:hidden;box-shadow:6px 6px 0 var(--ink);}
+.phil-item{display:flex;align-items:flex-start;gap:22px;padding:20px 26px;background:white;border-bottom:1px solid #eee;transition:background .15s;}
+.phil-item:last-child{border-bottom:none;}
+.phil-item:hover{background:#FFFBF0;}
+.phil-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--cream);line-height:1;flex-shrink:0;width:46px;text-align:right;padding-top:2px;}
+.phil-content h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:5px;}
+.phil-content p{font-size:13px;line-height:1.7;color:#666;font-weight:300;}
+.connect-section{background:var(--ink);border-radius:4px;padding:44px;text-align:center;position:relative;overflow:hidden;}
+.connect-section::after{content:'';position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;border-radius:50%;border:2px solid rgba(196,149,42,.1);}
+.connect-section h3{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--paper);margin-bottom:12px;position:relative;z-index:1;}
+.connect-section p{font-size:15px;color:var(--mist);font-weight:300;margin-bottom:28px;max-width:460px;margin-left:auto;margin-right:auto;line-height:1.7;position:relative;z-index:1;}
+.connect-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+.connect-btn{padding:11px 22px;border-radius:3px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .2s;border:2px solid;cursor:pointer;}
+.connect-btn.primary{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.connect-btn.primary:hover{background:var(--gold-light);border-color:var(--gold-light);transform:translateY(-2px);}
+.connect-btn.ghost{background:transparent;border-color:rgba(255,255,255,.25);color:var(--paper);}
+.connect-btn.ghost:hover{border-color:var(--gold);color:var(--gold-light);transform:translateY(-2px);}
+.ab-anim{animation:fadeUp .55s ease forwards;opacity:0;}
+.ab-1{animation-delay:.05s}.ab-2{animation-delay:.12s}.ab-3{animation-delay:.2s}.ab-4{animation-delay:.28s}.ab-5{animation-delay:.36s}
+
+/* FOOTER */
+footer{background:var(--ink);color:var(--paper);padding:26px 40px;position:relative;z-index:1;}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.footer-brand{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--gold-light);}
+.footer-credit{font-size:12px;color:var(--mist);line-height:1.6;text-align:right;}
+.footer-credit strong{color:var(--gold-light);}
+
+/* RESPONSIVE */
+@media(max-width:680px){
+  .header-inner,.hero,.scan-section,.results-wrap,.about-hero,.about-content{padding-left:20px;padding-right:20px;}
+  .community-section{grid-template-columns:1fr;}
+  .hero h2{font-size:28px;}
+  .master-score-ring{display:none;}
+  footer{padding:20px;}
+  .footer-credit{text-align:left;}
+  .san-origin{grid-template-columns:1fr;}
+  .etym-box{max-width:240px;margin:0 auto;}
+  .origin-block{padding:28px 20px;}
+  .connect-section{padding:32px 20px;}
+  .header-right .api-key-btn span:not(.key-dot){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="keyModal" onclick="if(event.target===this)closeKeyModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h4>🔑 Anthropic API Key</h4>
+      <button class="modal-close" onclick="closeKeyModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Sanmitra uses Claude AI to fetch and analyse content. Add your API key below — it is stored only in your browser session and sent only to Anthropic's servers.</p>
+      <div class="key-input-wrap">
+        <input class="key-input" id="keyInput" type="password" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')saveKey()">
+        <button class="key-toggle-vis" onclick="toggleKeyVis()">👁</button>
+      </div>
+      <button class="modal-save-btn" onclick="saveKey()">Save Key &amp; Start Analysing →</button>
+      <button class="modal-clear-btn" id="clearKeyBtn" onclick="clearKey()" style="display:none">Remove saved key</button>
+      <div class="modal-note">
+        <strong>Get a free key:</strong> Visit <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> → API Keys → Create Key. New accounts include free credits. Your key is never stored on any server.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loader">
+  <div class="loading-ring"></div>
+  <div class="loading-steps">
+    <div class="loading-step active" id="ls1"><span class="dot"></span>Fetching content &amp; transcript…</div>
+    <div class="loading-step" id="ls2"><span class="dot"></span>Identifying key claims…</div>
+    <div class="loading-step" id="ls3"><span class="dot"></span>Fact-checking statements…</div>
+    <div class="loading-step" id="ls4"><span class="dot"></span>Checking emotional language…</div>
+    <div class="loading-step" id="ls5"><span class="dot"></span>Measuring values alignment…</div>
+    <div class="loading-step" id="ls6"><span class="dot"></span>Running compliance checks…</div>
+    <div class="loading-step" id="ls7"><span class="dot"></span>Generating your Nutrition Label…</div>
+  </div>
+  <button class="loading-cancel" onclick="cancelScan()">Cancel</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="brand" onclick="showPage('home')">
+      <div class="brand-mark">S</div>
+      <div class="brand-text">
+        <h1>Sanmitra</h1>
+        <p>True Friend · Digital Nutrition</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="nav-home"  class="nav-btn active" onclick="showPage('home')">Home</button>
+      <button id="nav-about" class="nav-btn"        onclick="showPage('about')">About</button>
+      <button class="api-key-btn" id="apiKeyBtn" onclick="openKeyModal()">
+        <span class="key-dot" id="keyDot"></span>
+        <span>API Key</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE: HOME -->
+<div id="page-home">
+
+<div class="hero">
+  <div class="hero-eyebrow"><span>🌱</span> The World's First AI-Powered Digital Nutrition Label</div>
+  <h2>Every piece of content<br>deserves an <em>honest label</em></h2>
+  <p>You check the nutrition label on every food you eat. Your mind deserves the same protection. Sanmitra fetches the full transcript of any YouTube video, podcast, or article — then analyses every claim, before you consume it.</p>
+</div>
+
+<div class="scan-section">
+  <div class="setup-panel">
+    <h4>⚙️ Set Your Personal Values Filter</h4>
+    <p>Sanmitra scores content relative to YOUR values — not a generic algorithm. Select what matters to you.</p>
+    <div class="value-grid" id="valueGrid">
+      <label class="value-toggle active"><span class="vcheck">✓</span>Evidence-based</label>
+      <label class="value-toggle active"><span class="vcheck">✓</span>Professional credentials</label>
+      <label class="value-toggle"><span class="vcheck"></span>Spiritual / wellness</label>
+      <label class="value-toggle active"><span class="vcheck">✓</span>Scientific accuracy</label>
+      <label class="value-toggle"><span class="vcheck"></span>Entrepreneurial</label>
+      <label class="value-toggle active"><span class="vcheck">✓</span>Mental health safe</label>
+      <label class="value-toggle"><span class="vcheck"></span>Traditional values</label>
+      <label class="value-toggle active"><span class="vcheck">✓</span>Regulatory aligned</label>
+      <label class="value-toggle"><span class="vcheck"></span>Motivational / growth</label>
+      <label class="value-toggle active"><span class="vcheck">✓</span>Data &amp; research driven</label>
+    </div>
+  </div>
+
+  <div class="scan-box">
+    <div class="scan-box-label">📡 Paste Any URL — Content Fetched &amp; Analysed by Claude AI</div>
+    <div class="input-row">
+      <input class="url-input" id="urlInput" type="text"
+        placeholder="Paste a YouTube, podcast, article, or LinkedIn URL…"
+        onkeydown="if(event.key==='Enter')runScan()">
+      <button class="scan-btn" id="scanBtn" onclick="runScan()">Analyse Content →</button>
+    </div>
+    <div class="demo-chips">
+      <span class="chip-label">Try a demo:</span>
+      <span class="demo-chip" onclick="loadDemo('health')">🩺 Health Claim</span>
+      <span class="demo-chip" onclick="loadDemo('finance')">💰 Finance Guru</span>
+      <span class="demo-chip" onclick="loadDemo('ai')">🤖 AI Expert Talk</span>
+      <span class="demo-chip" onclick="loadDemo('wellness')">🧘 Wellness Creator</span>
+    </div>
+    <div class="no-key-notice hidden" id="noKeyNotice">
+      ⚠️ No API key set — Sanmitra needs your Anthropic key to analyse content.
+      <button class="no-key-btn" onclick="openKeyModal()">Add Key →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="history-strip" id="historyStrip" style="display:none">
+  <div class="history-label">Recent Analyses</div>
+  <div class="history-chips" id="historyChips"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="results">
+<div class="results-wrap">
+
+  <div class="results-header anim" id="rHeader">
+    <div class="content-meta">
+      <div class="source-badge" id="sourceBadge">● Source</div>
+      <h3 id="contentTitle">Title</h3>
+      <div class="creator-line" id="creatorLine">Creator</div>
+    </div>
+    <div class="master-score-ring">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#eee" stroke-width="10"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#C4952A" stroke-width="10"
+          stroke-dasharray="314" stroke-dashoffset="314" id="masterRing" stroke-linecap="round"
+          style="transition:stroke-dashoffset 2s cubic-bezier(.16,1,.3,1)"/>
+      </svg>
+      <div class="master-score-inner">
+        <span class="score-num" id="masterNum">0</span>
+        <span class="score-label">Sanmitra<br>Score</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="transcript-section anim" style="animation-delay:.05s">
+    <div class="transcript-header" onclick="toggleTranscript()">
+      <div class="t-header-left">
+        📜 Transcript &amp; Claims Analysis
+        <span id="transcriptWordCount" style="color:var(--gold-light)"></span>
+      </div>
+      <button class="t-toggle-btn" id="transcriptToggleBtn">SHOW ▼</button>
+    </div>
+    <div class="t-meta" id="transcriptMeta"></div>
+    <div class="transcript-body" id="transcriptBody">
+      <div class="t-excerpt" id="transcriptExcerpt"></div>
+      <div class="key-claims" id="keyClaims"></div>
+    </div>
+  </div>
+
+  <div class="nutrition-card anim" style="animation-delay:.1s">
+    <div class="nutrition-card-header">
+      <h4>Digital Nutrition Facts <span class="ai-badge">✦ AI Verified</span></h4>
+      <span class="serving">Per piece of content</span>
+    </div>
+    <div class="nutrition-divider"></div>
+    <div class="nutrition-rows" id="nutritionRows"></div>
+  </div>
+
+  <div class="values-section anim" style="animation-delay:.2s">
+    <h5>🎯 Personal Values Alignment</h5>
+    <div class="value-chips" id="valueCells"></div>
+  </div>
+
+  <div class="compliance-section anim" style="animation-delay:.3s">
+    <div class="compliance-header">⚖️ Compliance Framework Checks</div>
+    <div id="complianceRows"></div>
+  </div>
+
+  <div class="community-section anim" style="animation-delay:.4s">
+    <div class="community-stat"><span class="c-num" id="cReaders">0</span><span class="c-lbl">Community Reviews</span></div>
+    <div class="community-stat"><span class="c-num" id="cTrust">0%</span><span class="c-lbl">Trust Rating</span></div>
+    <div class="community-stat"><span class="c-num" id="cFlags">0</span><span class="c-lbl">Content Flags</span></div>
+  </div>
+
+  <div class="verdict-box anim" id="verdictBox" style="animation-delay:.5s;border-color:#065F46;background:#D1FAE5">
+    <div class="verdict-icon" id="verdictIcon">✅</div>
+    <div class="verdict-content">
+      <h4 id="verdictTitle">Sanmitra says…</h4>
+      <p id="verdictText">Generating analysis…</p>
+    </div>
+  </div>
+
+  <div class="share-row anim" style="animation-delay:.6s">
+    <button class="share-btn primary" onclick="copyResult()">📋 Copy Label</button>
+    <button class="share-btn tw"      onclick="shareX()">𝕏 Share</button>
+    <button class="share-btn li"      onclick="shareLinkedIn()">in Share</button>
+    <button class="share-btn"         onclick="newAnalysis()">🔄 Analyse Another</button>
+  </div>
+
+</div>
+</div>
+</div><!-- /page-home -->
+
+<!-- PAGE: ABOUT -->
+<div id="page-about">
+  <div class="about-hero">
+    <div class="about-eyebrow ab-anim"><span>👤</span> The Mind Behind Sanmitra</div>
+    <div class="about-hero-grid">
+      <div class="about-hero-left">
+        <h2 class="ab-anim ab-1">Building tools for<br>a <em>wiser internet</em></h2>
+        <p class="lead ab-anim ab-2">I'm Anurag Sharma — an AI Product Leader, Author, and Coach on a mission to help people think more clearly in an age of information overload. Sanmitra is my answer to a world drowning in content that rarely deserves your trust.</p>
+        <div class="role-tags ab-anim ab-3">
+          <span class="role-tag">🤖 AI Product Leader</span>
+          <span class="role-tag">✍️ Author</span>
+          <span class="role-tag">🎙️ Coach</span>
+          <span class="role-tag">🌱 Builder</span>
+        </div>
+        <div class="cta-row ab-anim ab-4">
+          <a href="https://www.linkedin.com/in/anuragsharmapro/" target="_blank" class="cta-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            View LinkedIn Profile
+          </a>
+          <button class="cta-btn outline" onclick="showPage('home')">🌱 Try Sanmitra</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-content">
+    <div class="origin-block ab-anim ab-1">
+      <blockquote>"We check ingredients on every food label, yet we consume hours of content with zero scrutiny. I built Sanmitra to give your <em>mind</em> the same protection as your body."</blockquote>
+      <div class="origin-attr">
+        <div class="attr-line"></div>
+        <span>Anurag Sharma · Creator of Sanmitra</span>
+      </div>
+    </div>
+
+    <div class="san-origin ab-anim ab-2">
+      <div>
+        <div class="gold-rule"></div>
+        <h3>Why <em>Sanmitra?</em></h3>
+        <p>The name is Sanskrit — chosen deliberately. In a world full of content designed to manipulate, we don't need another algorithm. We need a friend. A <em>true</em> friend who tells us what's actually in what we're consuming — not what we want to hear.</p>
+        <p>A Sanmitra in Indian philosophy speaks truth even when uncomfortable, guarding your wellbeing above momentary pleasure. Every score, every flag, every verdict is Sanmitra acting as your honest companion — helping you consume content that nourishes your mind, not poisons it.</p>
+      </div>
+      <div class="etym-box">
+        <span class="etym-word">Sanmitra</span>
+        <span class="etym-dev">सन्मित्र</span>
+        <div class="etym-meaning">
+          Sanskrit · सत् (Sat) + मित्र (Mitra)<br><br>
+          <strong>"True Friend"</strong>
+          one who speaks truth<br>and protects your wellbeing
+        </div>
+      </div>
+    </div>
+
+    <div class="phil-section ab-anim ab-3">
+      <div class="section-label">My Principles</div>
+      <div class="phil-list">
+        <div class="phil-item">
+          <div class="phil-num">01</div>
+          <div class="phil-content">
+            <h4>Truth before comfort</h4>
+            <p>A real friend tells you when something is wrong — even when you don't want to hear it. Sanmitra scores content honestly, not generously. If a video spreads misinformation, the label says so.</p>
+          </div>
+        </div>
+        <div class="phil-item">
+          <div class="phil-num">02</div>
+          <div class="phil-content">
+            <h4>Your values, your score</h4>
+            <p>There is no universal definition of "good content." Sanmitra is built around personal value alignment — you define the filter, Sanmitra does the analysis.</p>
+          </div>
+        </div>
+        <div class="phil-item">
+          <div class="phil-num">03</div>
+          <div class="phil-content">
+            <h4>Show the evidence, not just the verdict</h4>
+            <p>Every score comes with full reasoning — transcript analysis, fact-checks, and compliance flags are all visible, because understanding makes you smarter, not just safer.</p>
+          </div>
+        </div>
+        <div class="phil-item">
+          <div class="phil-num">04</div>
+          <div class="phil-content">
+            <h4>Access is a right, not a privilege</h4>
+            <p>Media literacy has been the domain of experts. Sanmitra is free, requires no login, and runs in a browser. Good information hygiene belongs to everyone.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connect-section ab-anim ab-4">
+      <h3>Let's build a wiser internet, together</h3>
+      <p>Whether you're a creator, educator, or someone who cares about truth — I'd love to connect.</p>
+      <div class="connect-links">
+        <a href="https://www.linkedin.com/in/anuragsharmapro/" target="_blank" class="connect-btn primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          Connect on LinkedIn
+        </a>
+        <button class="connect-btn ghost" onclick="showPage('home')">🌱 Try Sanmitra Free</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /page-about -->
+
+<!-- FEEDBACK FAB -->
+<div class="feedback-widget">
+  <div class="feedback-panel" id="feedbackPanel">
+    <div class="fp-header">
+      <h5>⭐ Rate Sanmitra</h5>
+      <button class="fp-close" onclick="closeFeedback()">✕</button>
+    </div>
+    <div id="feedbackForm">
+      <div class="fp-body">
+        <div class="fp-prompt">How would you rate your experience?</div>
+        <div class="star-row" id="starRow">
+          <span class="star" data-val="1">★</span>
+          <span class="star" data-val="2">★</span>
+          <span class="star" data-val="3">★</span>
+          <span class="star" data-val="4">★</span>
+          <span class="star" data-val="5">★</span>
+        </div>
+        <textarea class="fp-textarea" id="feedbackText" rows="3" placeholder="Tell Anurag what you think… (optional)"></textarea>
+        <button class="fp-submit" onclick="submitFeedback()">Send Feedback →</button>
+      </div>
+      <div class="fp-divider"></div>
+      <div class="li-strip">
+        <div class="li-logo">in</div>
+        <div class="li-strip-text"><strong>Follow Anurag Sharma</strong>AI & media literacy updates</div>
+        <a href="https://www.linkedin.com/in/anuragsharmapro/" target="_blank" class="li-follow">+ Follow</a>
+      </div>
+    </div>
+    <div class="fp-thanks" id="feedbackThanks">
+      <span class="ti">🙏</span>
+      <h6>Thank you!</h6>
+      <p>Your feedback makes Sanmitra better for everyone.</p>
+      <div class="fp-divider" style="margin:14px -16px 0"></div>
+      <div class="li-strip">
+        <div class="li-logo">in</div>
+        <div class="li-strip-text"><strong>Follow Anurag</strong>Stay in the loop</div>
+        <a href="https://www.linkedin.com/in/anuragsharmapro/" target="_blank" class="li-follow">+ Follow</a>
+      </div>
+    </div>
+  </div>
+  <div class="feedback-fab" onclick="toggleFeedback()" title="Rate Sanmitra">⭐</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">Sanmitra</div>
+    <div class="footer-credit">
+      <strong>AI-Powered Content Nutrition</strong><br>
+      Powered by Claude · Built by Anurag Sharma
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let apiKey = sessionStorage.getItem('sk') || '';
+let abortCtrl = null;
+let selectedRating = 0;
+let history = JSON.parse(sessionStorage.getItem('hist') || '[]');
+
+/* ═══════════════════════════════════════
+   BOOT
+═══════════════════════════════════════ */
+(function boot() {
+  syncKeyUI();
+  renderHistory();
+
+  document.querySelectorAll('.value-toggle').forEach(el => {
+    el.addEventListener('click', function() {
+      this.classList.toggle('active');
+      this.querySelector('.vcheck').textContent = this.classList.contains('active') ? '✓' : '';
+    });
+  });
+
+  document.querySelectorAll('.star').forEach(s => {
+    s.addEventListener('mouseover', function() {
+      const v = +this.dataset.val;
+      document.querySelectorAll('.star').forEach(x => x.classList.toggle('active', +x.dataset.val <= v));
+    });
+    s.addEventListener('mouseout', function() {
+      document.querySelectorAll('.star').forEach(x => {
+        x.classList.remove('active');
+        x.classList.toggle('locked', +x.dataset.val <= selectedRating);
+      });
+    });
+    s.addEventListener('click', function() {
+      selectedRating = +this.dataset.val;
+      document.querySelectorAll('.star').forEach(x => {
+        x.classList.remove('active');
+        x.classList.toggle('locked', +x.dataset.val <= selectedRating);
+      });
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════
+   API KEY
+═══════════════════════════════════════ */
+function syncKeyUI() {
+  const has = !!apiKey;
+  document.getElementById('keyDot').classList.toggle('has-key', has); // green dot
+  document.getElementById('apiKeyBtn').classList.toggle('has-key', has);
+  document.getElementById('noKeyNotice').classList.toggle('hidden', has);
+  const clearBtn = document.getElementById('clearKeyBtn');
+  if (clearBtn) clearBtn.style.display = has ? 'block' : 'none';
+}
+
+function openKeyModal() {
+  document.getElementById('keyInput').value = apiKey ? '••••••••••••••••' : '';
+  document.getElementById('keyInput').classList.remove('error');
+  document.getElementById('keyModal').classList.add('open');
+  setTimeout(() => { if (!apiKey) document.getElementById('keyInput').focus(); }, 100);
+}
+
+function closeKeyModal() { document.getElementById('keyModal').classList.remove('open'); }
+
+function toggleKeyVis() {
+  const i = document.getElementById('keyInput');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+
+function saveKey() {
+  let val = document.getElementById('keyInput').value.trim();
+  if (val === '••••••••••••••••') { closeKeyModal(); return; } // unchanged
+  if (!val.startsWith('sk-ant')) {
+    const inp = document.getElementById('keyInput');
+    inp.classList.add('error');
+    inp.placeholder = 'Must start with sk-ant-…';
+    inp.value = '';
+    return;
+  }
+  apiKey = val;
+  sessionStorage.setItem('sk', val);
+  syncKeyUI();
+  closeKeyModal();
+}
+
+function clearKey() {
+  apiKey = '';
+  sessionStorage.removeItem('sk');
+  document.getElementById('keyInput').value = '';
+  syncKeyUI();
+  closeKeyModal();
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function showPage(p) {
+  document.getElementById('page-home').style.display  = p === 'home'  ? 'block' : 'none';
+  document.getElementById('page-about').style.display = p === 'about' ? 'block' : 'none';
+  document.getElementById('nav-home').classList.toggle('active',  p === 'home');
+  document.getElementById('nav-about').classList.toggle('active', p === 'about');
+  window.scrollTo({ top:0, behavior:'smooth' });
+  if (p === 'about') {
+    document.querySelectorAll('.ab-anim').forEach(el => {
+      el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+    });
+  }
+}
+
+/* ═══════════════════════════════════════
+   DEMOS  (real, publicly available videos)
+═══════════════════════════════════════ */
+const DEMOS = {
+  health:   'https://www.youtube.com/watch?v=Y8CIjRbEBSQ', // Andrew Huberman sleep science
+  finance:  'https://www.youtube.com/watch?v=f6Yt8vv0q74', // Graham Stephan finance
+  ai:       'https://www.youtube.com/watch?v=zjkBMFhNj_g', // Sam Altman AI discussion
+  wellness: 'https://www.youtube.com/watch?v=h6TKNECzSdw'  // wellness / meditation
+};
+
+function loadDemo(type) {
+  document.getElementById('urlInput').value = DEMOS[type];
+  runScan();
+}
+
+/* ═══════════════════════════════════════
+   HISTORY
+═══════════════════════════════════════ */
+function pushHistory(url, title, score) {
+  history = [{ url, title: (title||url).substring(0,52), score, ts: Date.now() },
+             ...history.filter(h => h.url !== url)].slice(0, 7);
+  sessionStorage.setItem('hist', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const strip = document.getElementById('historyStrip');
+  const chips = document.getElementById('historyChips');
+  if (!strip) return;
+  if (!history.length) { strip.style.display = 'none'; return; }
+  strip.style.display = 'block';
+  chips.innerHTML = '';
+  history.forEach((h, i) => {
+    const bg = h.score >= 75 ? '#D1FAE5' : h.score >= 50 ? '#FEF3C7' : '#FEE2E2';
+    const tc = h.score >= 75 ? '#065F46' : h.score >= 50 ? '#92400E' : '#991B1B';
+    const c  = document.createElement('div');
+    c.className = 'h-chip';
+    c.innerHTML = `<span class="h-score" style="background:${bg};color:${tc}">${h.score}</span><span class="h-title">${h.title}</span><span class="h-del" title="Remove" onclick="removeHistory(${i},event)">×</span>`;
+    c.addEventListener('click', () => { document.getElementById('urlInput').value = h.url; runScan(); });
+    chips.appendChild(c);
+  });
+}
+
+function removeHistory(i, e) {
+  e.stopPropagation();
+  history.splice(i, 1);
+  sessionStorage.setItem('hist', JSON.stringify(history));
+  renderHistory();
+}
+
+/* ═══════════════════════════════════════
+   LOADER
+═══════════════════════════════════════ */
+function startLoader() {
+  const ids = ['ls1','ls2','ls3','ls4','ls5','ls6','ls7'];
+  ids.forEach(id => document.getElementById(id).classList.remove('active','done'));
+  document.getElementById('ls1').classList.add('active');
+  let i = 0;
+  return setInterval(() => {
+    if (i > 0) { const p = document.getElementById(ids[i-1]); if(p) p.classList.replace('active','done'); }
+    if (i < ids.length) { const c = document.getElementById(ids[i]); if(c) c.classList.add('active'); i++; }
+  }, 2000);
+}
+
+function cancelScan() {
+  if (abortCtrl) abortCtrl.abort();
+  document.getElementById('loader').classList.remove('active');
+  document.getElementById('scanBtn').disabled = false;
+}
+
+/* ═══════════════════════════════════════
+   VALUES
+═══════════════════════════════════════ */
+function getValues() {
+  return Array.from(document.querySelectorAll('.value-toggle.active'))
+    .map(el => el.textContent.replace('✓','').trim());
+}
+
+/* ═══════════════════════════════════════
+   MAIN SCAN
+═══════════════════════════════════════ */
+async function runScan() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) {
+    const inp = document.getElementById('urlInput');
+    inp.style.borderColor = '#B54A2A';
+    inp.focus();
+    setTimeout(() => inp.style.borderColor = '', 1500);
+    return;
+  }
+  if (!apiKey) { openKeyModal(); return; }
+
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('loader').classList.add('active');
+  document.getElementById('results').style.display = 'none';
+  const eb = document.getElementById('errorBox'); if(eb) eb.remove();
+
+  const loaderTimer = startLoader();
+  abortCtrl = new AbortController();
+
+  try {
+    const data = await analyse(url, getValues(), abortCtrl.signal);
+    clearInterval(loaderTimer);
+    document.getElementById('loader').classList.remove('active');
+    render(data);
+    pushHistory(url, data.title, data.masterScore || 0);
+  } catch(err) {
+    clearInterval(loaderTimer);
+    document.getElementById('loader').classList.remove('active');
+    if (err.name !== 'AbortError') showErr(err.message || 'Analysis failed. Please try again.');
+  } finally {
+    document.getElementById('scanBtn').disabled = false;
+    abortCtrl = null;
+  }
+}
+
+/* ═══════════════════════════════════════
+   API CALL
+═══════════════════════════════════════ */
+async function analyse(url, values, signal) {
+  const sys = `You are Sanmitra — an AI that creates a "Digital Nutrition Label" for online content.
+
+Process:
+1. Use web_search to find the content title, creator, and key facts about what is said in it.
+2. Try to find the transcript or article text (search "{title} transcript" or "{title} full text").
+3. Identify and fact-check the 4–6 most important or questionable claims in the content.
+4. Produce a holistic assessment of credibility, accuracy, manipulation tactics, and compliance.
+
+Return ONLY a single JSON object — no markdown fences, no preamble, no explanation.
+
+Schema:
+{
+  "source":"platform name",
+  "badge":"badge text e.g. '▶ YOUTUBE' '🎙 PODCAST' '📰 ARTICLE' '💼 LINKEDIN'",
+  "title":"exact content title",
+  "creator":"creator name · channel or publication · audience size",
+  "masterScore":<0-100 integer>,
+  "transcript":{
+    "available":<boolean>,
+    "method":"how content was accessed",
+    "wordCount":<integer, 0 if unknown>,
+    "duration":"e.g. '22 min video' '1,400 word article'",
+    "excerpt":"400-600 words of actual content text or detailed summary of what was said",
+    "claims":[
+      {"text":"specific claim made","verdict":"true|partial|false|unverified","explanation":"one-sentence check"}
+    ]
+  },
+  "rows":[
+    {"label":"Speaker Credibility","sub":"Qualifications & track record","score":<0-100>,"flag":"flag-great|flag-good|flag-avg|flag-poor|flag-alert","flagTxt":"LABEL","color":"<hex>"},
+    {"label":"Factual Accuracy","sub":"Claims verified against evidence","score":<0-100>,"flag":"flag-great|flag-good|flag-avg|flag-poor|flag-alert","flagTxt":"LABEL","color":"<hex>"},
+    {"label":"Emotional Manipulation","sub":"Fear, urgency, FOMO detected (100=none)","score":<0-100>,"flag":"flag-great|flag-good|flag-avg|flag-poor|flag-alert","flagTxt":"LABEL","color":"<hex>"},
+    {"label":"Commercial Transparency","sub":"Sponsorships & affiliates disclosed","score":<0-100>,"flag":"flag-great|flag-good|flag-avg|flag-poor|flag-alert","flagTxt":"LABEL","color":"<hex>"},
+    {"label":"Source Quality","sub":"Citations & references in content","score":<0-100>,"flag":"flag-great|flag-good|flag-avg|flag-poor|flag-alert","flagTxt":"LABEL","color":"<hex>"},
+    {"label":"Audience Safety","sub":"Tone, inclusivity, vulnerable groups","score":<0-100>,"flag":"flag-great|flag-good|flag-avg|flag-poor|flag-alert","flagTxt":"LABEL","color":"<hex>"}
+  ],
+  "values":[{"label":"<name>","state":"aligned|neutral|conflict"}],
+  "compliance":[
+    {"dot":"dot-pass|dot-warn|dot-fail","name":"regulation or standard","desc":"specific finding","status":"status-pass|status-warn|status-fail","statusTxt":"COMPLIANT|REVIEW|WARNING|FAIL"}
+  ],
+  "community":{"reviews":"<estimated>","trust":"<percent>","flags":"<estimated>"},
+  "verdict":{"icon":"✅|🟡|❌","color":"#D1FAE5|#FEF3C7|#FEE2E2","borderColor":"#065F46|#D97706|#991B1B","title":"Sanmitra says: <verdict headline>","text":"3-4 sentences with specific findings about this content"}
+}
+
+Score→colour: 75-100=#2D6A4F flag-great | 60-74=#52796F flag-good | 45-59=#B5838D flag-avg | 25-44=#B54A2A flag-poor | 0-24=#8B1A1A flag-alert
+masterScore: 75+→✅#065F46 | 50-74→🟡#D97706 | <50→❌#991B1B`;
+
+  const usr = `Analyse this content and return the Digital Nutrition Label JSON.
+
+URL: ${url}
+
+User's values to assess against: ${values.length ? values.join(', ') : 'general balanced assessment'}
+
+Return ONLY the JSON object.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST', signal,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      system: sys,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      messages: [{ role: 'user', content: usr }]
+    })
+  });
+
+  if (!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    if (resp.status === 401) throw new Error('Invalid API key. Please check your key.');
+    if (resp.status === 429) throw new Error('Rate limit reached. Wait a moment and try again.');
+    throw new Error(e.error?.message || `API error ${resp.status}`);
+  }
+
+  const body = await resp.json();
+  const raw = body.content.filter(b => b.type === 'text').map(b => b.text).join('');
+
+  // Extract JSON
+  let s = raw.trim().replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim();
+  const m = s.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('Could not parse response. Please try again.');
+  try { return JSON.parse(m[0]); }
+  catch { return JSON.parse(m[0].replace(/,\s*([}\]])/g,'$1')); } // fix trailing commas
+}
+
+/* ═══════════════════════════════════════
+   ERROR
+═══════════════════════════════════════ */
+function showErr(msg) {
+  let eb = document.getElementById('errorBox'); if(eb) eb.remove();
+  const b = document.createElement('div');
+  b.id = 'errorBox'; b.className = 'error-box';
+  b.innerHTML = `<span style="font-size:20px">⚠️</span><div><strong>Analysis could not be completed</strong><br>${msg}<br><small style="opacity:.7;margin-top:4px;display:block">Use a publicly accessible URL — YouTube, articles, and podcast pages work best.</small></div>`;
+  document.querySelector('.scan-section').appendChild(b);
+  document.getElementById('results').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════
+   RENDER
+═══════════════════════════════════════ */
+function render(d) {
+  // Header
+  document.getElementById('sourceBadge').textContent  = d.badge || d.source || '● Content';
+  document.getElementById('contentTitle').textContent = d.title || 'Untitled';
+  document.getElementById('creatorLine').textContent  = d.creator || '';
+
+  // Ring
+  const C = 314, score = Math.min(Math.max(d.masterScore||0,0),100);
+  const offset = C - (score/100 * C);
+  const ring = document.getElementById('masterRing');
+  const num  = document.getElementById('masterNum');
+  ring.style.strokeDashoffset = C;
+  ring.style.stroke = score >= 75 ? '#2D6A4F' : score >= 50 ? '#C4952A' : '#B54A2A';
+  num.textContent = '0';
+
+  // Transcript
+  const t = d.transcript || {};
+  const wc = t.wordCount || 0;
+  document.getElementById('transcriptWordCount').textContent = wc > 0 ? `· ${wc.toLocaleString()} words` : '';
+  document.getElementById('transcriptMeta').innerHTML =
+    `<span>📡 <strong>Source:</strong> ${t.method||'Web search'}</span>
+     ${t.duration ? `<span>⏱ <strong>Length:</strong> ${t.duration}</span>` : ''}
+     ${wc > 0 ? `<span>📝 <strong>Words read:</strong> ${wc.toLocaleString()}</span>` : ''}
+     <span>🔬 <strong>Claims checked:</strong> ${(t.claims||[]).length}</span>`;
+  document.getElementById('transcriptExcerpt').textContent = t.excerpt || 'Transcript not available. Analysis based on web search metadata.';
+
+  // Claims
+  const ce = document.getElementById('keyClaims'); ce.innerHTML = '';
+  if ((t.claims||[]).length) {
+    const h = document.createElement('h6'); h.textContent = '🔍 Key Claims — Fact Checked'; ce.appendChild(h);
+    t.claims.forEach(c => {
+      const d2 = document.createElement('div'); d2.className = 'claim-item';
+      d2.innerHTML = `<span class="claim-verdict claim-${c.verdict||'unverified'}">${(c.verdict||'UNVERIFIED').toUpperCase()}</span>
+        <div><div style="font-weight:600;color:#1a1a1a;margin-bottom:3px">"${c.text}"</div>
+        <div style="color:#777;font-size:12px">${c.explanation}</div></div>`;
+      ce.appendChild(d2);
+    });
+  }
+
+  // Nutrition rows
+  const nr = document.getElementById('nutritionRows'); nr.innerHTML = '';
+  (d.rows||[]).forEach((r,i) => {
+    const el = document.createElement('div'); el.className = 'nutrition-row';
+    el.innerHTML = `
+      <div class="n-label">${r.label}<span class="n-sub">${r.sub||''}</span></div>
+      <div class="bar-wrap"><div class="bar" id="b${i}" style="background:${r.color||'#B5838D'}"></div></div>
+      <div class="score-tag" style="color:${r.color||'#B5838D'}">${r.score}/100</div>
+      <div class="flag ${r.flag||'flag-avg'}">${r.flagTxt||''}</div>`;
+    nr.appendChild(el);
+  });
+
+  // Values
+  const vc = document.getElementById('valueCells'); vc.innerHTML = '';
+  (d.values||[]).forEach(v => {
+    const s = document.createElement('span');
+    s.className = `value-chip value-${v.state||'neutral'}`;
+    s.textContent = (v.state==='aligned'?'✓ ':v.state==='conflict'?'✗ ':'~ ') + v.label;
+    vc.appendChild(s);
+  });
+
+  // Compliance
+  const cr = document.getElementById('complianceRows'); cr.innerHTML = '';
+  (d.compliance||[]).forEach(c => {
+    const el = document.createElement('div'); el.className = 'compliance-item';
+    el.innerHTML = `<div class="compliance-dot ${c.dot||'dot-warn'}"></div>
+      <div class="compliance-text"><div class="c-name">${c.name}</div><div class="c-desc">${c.desc}</div></div>
+      <div class="compliance-status ${c.status||'status-warn'}">${c.statusTxt||''}</div>`;
+    cr.appendChild(el);
+  });
+
+  // Verdict
+  const vb = document.getElementById('verdictBox');
+  vb.style.background  = d.verdict?.color      || '#FEF3C7';
+  vb.style.borderColor = d.verdict?.borderColor || '#D97706';
+  document.getElementById('verdictIcon').textContent  = d.verdict?.icon  || '🟡';
+  document.getElementById('verdictTitle').textContent = d.verdict?.title || 'Analysis complete';
+  document.getElementById('verdictTitle').style.color = d.verdict?.borderColor || '#D97706';
+  document.getElementById('verdictText').textContent  = d.verdict?.text  || '';
+
+  // Show & animate
+  document.getElementById('results').style.display = 'block';
+  document.querySelectorAll('.anim').forEach(el => {
+    el.style.opacity='0'; el.style.animation='none'; void el.offsetWidth; el.style.animation='';
+  });
+  document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  setTimeout(() => {
+    ring.style.strokeDashoffset = offset;
+    let c2 = 0;
+    const t2 = setInterval(() => { c2 = Math.min(c2+2, score); num.textContent = c2; if(c2>=score) clearInterval(t2); }, 25);
+    (d.rows||[]).forEach((r,i) => setTimeout(() => { const b=document.getElementById(`b${i}`); if(b) b.style.width=r.score+'%'; }, i*100));
+    const comm = d.community || {};
+    [
+      {id:'cReaders', v:parseInt((comm.reviews||'0').replace(/\D/g,''))||0, s:'',  fmt:true},
+      {id:'cTrust',   v:parseInt((comm.trust  ||'0').replace(/\D/g,''))||0, s:'%', fmt:false},
+      {id:'cFlags',   v:parseInt((comm.flags  ||'0').replace(/\D/g,''))||0, s:'',  fmt:true}
+    ].forEach(item => {
+      let cv=0; const step=Math.max(1,Math.ceil(item.v/40));
+      const ti=setInterval(()=>{ cv=Math.min(cv+step,item.v); const el=document.getElementById(item.id);
+        if(el) el.textContent=(item.fmt&&cv>=1000?(cv/1000).toFixed(1)+'K':cv)+item.s; if(cv>=item.v) clearInterval(ti); },40);
+    });
+  }, 600);
+}
+
+/* ═══════════════════════════════════════
+   TRANSCRIPT TOGGLE
+═══════════════════════════════════════ */
+function toggleTranscript() {
+  const body = document.getElementById('transcriptBody');
+  const btn  = document.getElementById('transcriptToggleBtn');
+  const open = body.classList.toggle('open');
+  btn.textContent = open ? 'HIDE ▲' : 'SHOW ▼';
+}
+
+/* ═══════════════════════════════════════
+   SHARING
+═══════════════════════════════════════ */
+function copyResult() {
+  const title   = document.getElementById('contentTitle').textContent;
+  const score   = document.getElementById('masterNum').textContent;
+  const verdict = document.getElementById('verdictText').textContent;
+  navigator.clipboard.writeText(
+    `🌱 Sanmitra Digital Nutrition Label\n\n📌 ${title}\n⭐ Score: ${score}/100\n\n📋 ${verdict}\n\nAnalyse your own content — sanmitra`
+  ).then(() => {
+    const btn = document.querySelector('.share-btn.primary');
+    const orig = btn.innerHTML; btn.innerHTML = '✓ Copied!';
+    setTimeout(() => btn.innerHTML = orig, 2000);
+  });
+}
+
+function shareX() {
+  const title = document.getElementById('contentTitle').textContent;
+  const score = document.getElementById('masterNum').textContent;
+  const text = encodeURIComponent(`🌱 Sanmitra Score: ${score}/100 for "${title.substring(0,55)}…"\n\nKnow what you consume — AI-powered Digital Nutrition Label for online content. #Sanmitra #MediaLiteracy #AI`);
+  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+}
+
+function shareLinkedIn() {
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
+}
+
+function newAnalysis() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('urlInput').value = '';
+  document.getElementById('urlInput').focus();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ═══════════════════════════════════════
+   FEEDBACK
+═══════════════════════════════════════ */
+function toggleFeedback() { document.getElementById('feedbackPanel').classList.toggle('open'); }
+function closeFeedback()  { document.getElementById('feedbackPanel').classList.remove('open'); }
+
+function submitFeedback() {
+  if (!selectedRating) {
+    const r = document.getElementById('starRow');
+    r.style.animation='none'; void r.offsetWidth; r.style.animation='shake .4s ease'; return;
+  }
+  const text    = document.getElementById('feedbackText').value.trim();
+  const subject = encodeURIComponent(`Sanmitra Feedback — ${selectedRating}★`);
+  const body    = encodeURIComponent(`Rating: ${selectedRating}/5★\n\n${text||'(No comment)'}\n\n— Sent via Sanmitra`);
+  window.open(`mailto:anuragsharma.success@gmail.com?subject=${subject}&body=${body}`);
+  document.getElementById('feedbackForm').style.display  = 'none';
+  document.getElementById('feedbackThanks').style.display = 'block';
+}
+</script>
+</body>
+</html>
